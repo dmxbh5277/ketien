@@ -280,7 +280,7 @@
 </head>
 <body>
     <div class="container" id="captureArea">
-        <h2>BẢNG KÊ TIỀN THỰC TẾ</h2>
+        <h2>BẢNG KÊ TIỀN THU NGÂN</h2>
         
         <!-- Hàng 1: User Nhân viên & Ngày Giờ -->
         <div class="dashboard-inputs">
@@ -297,15 +297,15 @@
         <!-- Hàng 2: Tiền Hệ thống & Thực tế -->
         <div class="summary-box">
             <div class="input-card" style="background: #ffffff; border: 1.5px solid #cbd5e1;">
-                <label for="systemAmount" style="color: var(--primary);">Tiền Hệ thống</label>
+                <label for="systemAmount" style="color: var(--primary);">Tiền ERP</label>
                 <input type="text" id="systemAmount" placeholder="0" inputmode="numeric" oninput="formatCurrencyInput(this); calculateTotals();">
             </div>
             <div class="input-card" style="background: #ffffff; border: 1.5px solid #a7f3d0; justify-content: center;">
-                <label style="color: var(--success);">Thực tế</label>
+                <label style="color: var(--success);">TIỀN THỰC TẾ</label>
                 <span class="value" id="actualTotal" style="font-size: 14px; font-weight: 700; color: var(--success); padding: 6px 0;">0 ₫</span>
             </div>
             <div class="summary-item full" style="background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-table); margin-top: 2px;">
-                <span class="label">Chênh lệch (Thực tế - Hệ thống)</span>
+                <span class="label">Chênh lệch</span>
                 <span class="value" id="discrepancy">0 ₫</span>
             </div>
         </div>
