@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bảng Kê Tiền - Compact Mobile Dashboard</title>
+    <title>Bảng Kê Tiền - Quản Lý Thu Tiền Nhân Viên</title>
     <!-- Nhập font Google Sans từ Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Thư viện chụp màn hình -->
@@ -100,11 +100,9 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            background: #f8fafc;
-            padding: 8px 12px;
-            border-radius: 8px;
+            background: transparent;
+            padding: 0;
             margin-bottom: 10px;
-            border: 1px solid var(--border-table);
         }
 
         .summary-item {
@@ -190,6 +188,13 @@
 
         .button-group {
             display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .button-group-sub {
+            display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
         }
@@ -197,18 +202,89 @@
         button {
             font-family: 'Google Sans', sans-serif;
             border: none;
-            padding: 9px 6px;
+            padding: 10px 6px;
             font-size: 12px;
             border-radius: 6px;
             cursor: pointer;
             color: white;
-            font-weight: 500;
+            font-weight: 700;
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
-        .btn-clear { background-color: #fb923c; } 
-        .btn-capture { background-color: #38bdf8; } 
-        .btn-submit { background-color: #34d399; } 
+        .btn-save { background-color: var(--primary); }
+        .btn-stats { background-color: #0284c7; }
+        .btn-summary { background-color: var(--success); }
+        .btn-clear { background-color: #fb923c; font-weight: 500; } 
+        .btn-capture { background-color: #38bdf8; font-weight: 500; } 
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 12px;
+        }
+        .modal-content {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-table);
+            padding-bottom: 8px;
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #0f172a;
+        }
+        .close-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px; height: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .user-item-card {
+            background: var(--pastel-blue-bg);
+            border: 1px solid var(--border-table);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .user-item-card:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+        .badge-count {
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -227,8 +303,8 @@
             </div>
         </div>
 
-        <!-- Hàng 2: Tiền Hệ thống & Thực tế được đặt trong các ô card nổi bật -->
-        <div class="summary-box" style="background: transparent; padding: 0; border: none; gap: 10px; margin-bottom: 10px;">
+        <!-- Hàng 2: Tiền Hệ thống & Thực tế -->
+        <div class="summary-box">
             <div class="input-card" style="background: #ffffff; border: 1.5px solid #cbd5e1;">
                 <label for="systemAmount" style="color: var(--primary);">Tiền Hệ thống</label>
                 <input type="text" id="systemAmount" placeholder="0" inputmode="numeric" oninput="formatCurrencyInput(this); calculateTotals();">
@@ -237,7 +313,7 @@
                 <label style="color: var(--success);">Thực tế</label>
                 <span class="value" id="actualTotal" style="font-size: 14px; font-weight: 700; color: var(--success); padding: 6px 0;">0 ₫</span>
             </div>
-            <div class="summary-item full" style="background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-table);">
+            <div class="summary-item full" style="background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-table); margin-top: 2px;">
                 <span class="label">Chênh lệch (Thực tế - Hệ thống)</span>
                 <span class="value" id="discrepancy">0 ₫</span>
             </div>
@@ -254,15 +330,63 @@
             <tbody id="denominationTable"></tbody>
         </table>
 
+        <!-- Nhóm nút chức năng chính theo yêu cầu -->
         <div class="button-group">
-            <button class="btn-clear" onclick="clearAll()">Xóa All</button>
+            <button class="btn-save" onclick="saveRecord()">💾 LƯU NHÂN VIÊN</button>
+            <button class="btn-stats" onclick="openStatsModal()">📊 THỐNG KÊ (DANH SÁCH)</button>
+        </div>
+        <div class="button-group" style="margin-bottom: 8px;">
+            <button class="btn-summary" onclick="openSummaryModal()" style="grid-column: span 2;">📈 TỔNG KẾT TOÀN BỘ</button>
+        </div>
+        <div class="button-group-sub">
+            <button class="btn-clear" onclick="clearAll()">Xóa Form</button>
             <button class="btn-capture" onclick="captureScreen()">Capture</button>
-            <button class="btn-submit" onclick="submitData()">Xác Nhận</button>
+            <button class="btn-clear" onclick="resetAllData()" style="background-color: #ef4444;">Xóa Hết Data</button>
+        </div>
+    </div>
+
+    <!-- Modal Thống Kê Danh Sách Nhân Viên -->
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Thống Kê Theo Nhân Viên</h3>
+                <button class="close-btn" onclick="closeModal('statsModal')">&times;</button>
+            </div>
+            <div id="statsListContainer">
+                <!-- Danh sách nhân viên sẽ render ở đây -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chi Tiết Bảng Kê Của 1 Nhân Viên -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailModalTitle">Chi Tiết Bảng Kê</h3>
+                <button class="close-btn" onclick="closeModal('detailModal')">&times;</button>
+            </div>
+            <div id="detailModalBody">
+                <!-- Chi tiết mệnh giá nhân viên đó nộp -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tổng Kết Toàn Bộ -->
+    <div class="modal-overlay" id="summaryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Bảng Kê Tổng Kết Toàn Bộ</h3>
+                <button class="close-btn" onclick="closeModal('summaryModal')">&times;</button>
+            </div>
+            <div id="summaryModalBody">
+                <!-- Tổng kết tất cả các user -->
+            </div>
         </div>
     </div>
 
     <script>
         const denominations = [500000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000];
+        let savedRecords = JSON.parse(localStorage.getItem('cash_records') || '[]');
 
         function initTable() {
             const tbody = document.getElementById('denominationTable');
@@ -280,9 +404,245 @@
             setInterval(updateDateTime, 1000);
         }
 
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('currentDateTime').innerText = now.toLocaleString('vi-VN');
+        }
+
+        function formatCurrencyInput(input) {
+            let value = input.value.replace(/\D/g, '');
+            input.value = value ? Number(value).toLocaleString('vi-VN') : '';
+        }
+
+        function calculateTotals() {
+            let totalActual = 0;
+            document.querySelectorAll('#denominationTable input').forEach(input => {
+                const denom = Number(input.getAttribute('data-denom'));
+                const qty = Number(input.value) || 0;
+                const subtotal = denom * qty;
+                totalActual += subtotal;
+                document.getElementById(`subtotal-${denom}`).innerText = subtotal.toLocaleString('vi-VN');
+            });
+            document.getElementById('actualTotal').innerText = totalActual.toLocaleString('vi-VN') + ' ₫';
+            
+            const systemTotal = Number(document.getElementById('systemAmount').value.replace(/\./g, '')) || 0;
+            const diff = totalActual - systemTotal;
+            const diffEl = document.getElementById('discrepancy');
+            
+            diffEl.innerText = diff.toLocaleString('vi-VN') + ' ₫';
+            if (diff > 0) {
+                diffEl.style.color = '#059669'; 
+            } else if (diff < 0) {
+                diffEl.style.color = '#dc2626'; 
+            } else {
+                diffEl.style.color = '#1e293b'; 
+            }
+        }
+
+        // Lưu thông tin nhân viên hiện tại
+        function saveRecord() {
+            const empId = document.getElementById('employeeId').value.trim();
+            if (!empId) {
+                alert('Vui lòng nhập User nhân viên trước khi lưu!');
+                document.getElementById('employeeId').focus();
+                return;
+            }
+
+            let totalActual = 0;
+            const denomDetails = {};
+            document.querySelectorAll('#denominationTable input').forEach(input => {
+                const denom = input.getAttribute('data-denom');
+                const qty = Number(input.value) || 0;
+                denomDetails[denom] = qty;
+                totalActual += Number(denom) * qty;
+            });
+
+            if (totalActual === 0) {
+                if (!confirm("Số tiền thực tế đang bằng 0. Bạn có chắc chắn muốn lưu?")) return;
+            }
+
+            const record = {
+                id: Date.now(),
+                employeeId: empId,
+                dateTime: document.getElementById('currentDateTime').innerText,
+                systemAmount: document.getElementById('systemAmount').value,
+                totalActual: totalActual,
+                denominations: denomDetails
+            };
+
+            savedRecords.push(record);
+            localStorage.setItem('cash_records', JSON.stringify(savedRecords));
+            
+            alert(`Đã lưu thành công bảng kê của User: ${empId} (${totalActual.toLocaleString('vi-VN')} ₫)`);
+            clearAll();
+        }
+
+        // Mở popup Thống kê danh sách nhân viên
+        function openStatsModal() {
+            const container = document.getElementById('statsListContainer');
+            container.innerHTML = '';
+
+            if (savedRecords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">Chưa có dữ liệu nhân viên nào được lưu trong ngày.</p>';
+            } else {
+                savedRecords.forEach((rec, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'user-item-card';
+                    card.innerHTML = `
+                        <div>
+                            <strong style="font-size: 14px; color: var(--primary);">User: ${rec.employeeId}</strong>
+                            <div style="font-size: 11px; color: var(--text-secondary);">${rec.dateTime}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; color: var(--success);">${rec.totalActual.toLocaleString('vi-VN')} ₫</div>
+                            <span class="badge-count">Xem chi tiết ➔</span>
+                        </div>
+                    `;
+                    card.onclick = () => showUserDetail(index);
+                    container.appendChild(card);
+                });
+            }
+            document.getElementById('statsModal').style.display = 'flex';
+        }
+
+        // Hiển thị chi tiết số tờ của một nhân viên khi click vào tên
+        function showUserDetail(index) {
+            const rec = savedRecords[index];
+            document.getElementById('detailModalTitle').innerText = `Chi tiết User: ${rec.employeeId} (${rec.dateTime})`;
+            
+            let html = `
+                <div style="margin-bottom: 10px; font-size: 13px; color: var(--text-secondary);">
+                    Tiền hệ thống: <b>${rec.systemAmount || '0'} ₫</b> | Tổng thực tế: <b style="color: var(--success);">${rec.totalActual.toLocaleString('vi-VN')} ₫</b>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mệnh giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let calcTotal = 0;
+            denominations.forEach(denom => {
+                const qty = rec.denominations[denom] || 0;
+                const sub = denom * qty;
+                calcTotal += sub;
+                html += `
+                    <tr>
+                        <td style="font-weight: 500;">${denom.toLocaleString('vi-VN')}</td>
+                        <td style="text-align: center;">${qty}</td>
+                        <td style="text-align: right;">${sub.toLocaleString('vi-VN')}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+                <div style="text-align: right; margin-top: 10px;">
+                    <button onclick="deleteRecord(${index})" style="background: #ef4444; padding: 6px 12px; font-size: 11px; border-radius: 4px; color: white; border: none; cursor: pointer;">Xóa bản ghi này</button>
+                </div>
+            `;
+
+            document.getElementById('detailModalBody').innerHTML = html;
+            document.getElementById('statsModal').style.display = 'none';
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // Xóa 1 bản ghi nhân viên
+        function deleteRecord(index) {
+            if (confirm("Bạn có chắc chắn muốn xóa bản ghi của nhân viên này?")) {
+                savedRecords.splice(index, 1);
+                localStorage.setItem('cash_records', JSON.stringify(savedRecords));
+                closeModal('detailModal');
+                openStatsModal();
+            }
+        }
+
+        // Mở popup Tổng kết tất cả các nhân viên
+        function openSummaryModal() {
+            const container = document.getElementById('summaryModalBody');
+            
+            if (savedRecords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">Chưa có dữ liệu để tổng kết.</p>';
+                document.getElementById('summaryModal').style.display = 'flex';
+                return;
+            }
+
+            // Gộp số tờ của tất cả các user
+            const summaryDenom = {};
+            let grandTotalActual = 0;
+            denominations.forEach(d => summaryDenom[d] = 0);
+
+            savedRecords.forEach(rec => {
+                grandTotalActual += rec.totalActual;
+                denominations.forEach(d => {
+                    summaryDenom[d] += (rec.denominations[d] || 0);
+                });
+            });
+
+            let html = `
+                <div style="margin-bottom: 10px; font-size: 13px;">
+                    Tổng số nhân viên đã nộp: <b>${savedRecords.length}</b><br>
+                    Tổng tiền thực tế toàn bộ: <b style="color: var(--success); font-size: 15px;">${grandTotalActual.toLocaleString('vi-VN')} ₫</b>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mệnh giá</th>
+                            <th>Tổng số tờ</th>
+                            <th>Tổng thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            denominations.forEach(denom => {
+                const totalQty = summaryDenom[denom];
+                const totalSub = denom * totalQty;
+                html += `
+                    <tr>
+                        <td style="font-weight: 500;">${denom.toLocaleString('vi-VN')}</td>
+                        <td style="text-align: center; font-weight: 700;">${totalQty}</td>
+                        <td style="text-align: right; font-weight: 700;">${totalSub.toLocaleString('vi-VN')}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+            document.getElementById('summaryModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function clearAll() {
+            document.getElementById('employeeId').value = '';
+            document.getElementById('systemAmount').value = '';
+            document.querySelectorAll('#denominationTable input').forEach(input => input.value = '');
+            calculateTotals();
+        }
+
+        function resetAllData() {
+            if (confirm("CẢNH BÁO: Thao tác này sẽ xóa toàn bộ dữ liệu các nhân viên đã lưu trong ngày! Bạn có chắc chắn không?")) {
+                savedRecords = [];
+                localStorage.removeItem('cash_records');
+                clearAll();
+                alert("Đã làm mới toàn bộ dữ liệu.");
+            }
+        }
+
         function captureScreen() {
             const originalContainer = document.getElementById('captureArea');
-            
             const clone = originalContainer.cloneNode(true);
             clone.style.width = originalContainer.offsetWidth + 'px';
             clone.style.position = 'absolute';
@@ -323,60 +683,6 @@
                 document.body.removeChild(clone);
                 alert('Có lỗi xảy ra khi chụp ảnh!');
             });
-        }
-
-        function clearAll() {
-            if(confirm("Bạn có chắc chắn muốn xóa hết dữ liệu đã nhập?")) {
-                document.getElementById('employeeId').value = '';
-                document.getElementById('systemAmount').value = '';
-                document.querySelectorAll('#denominationTable input').forEach(input => input.value = '');
-                calculateTotals();
-            }
-        }
-
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('currentDateTime').innerText = now.toLocaleString('vi-VN');
-        }
-
-        function formatCurrencyInput(input) {
-            let value = input.value.replace(/\D/g, '');
-            input.value = value ? Number(value).toLocaleString('vi-VN') : '';
-        }
-
-        function calculateTotals() {
-            let totalActual = 0;
-            document.querySelectorAll('#denominationTable input').forEach(input => {
-                const denom = Number(input.getAttribute('data-denom'));
-                const qty = Number(input.value) || 0;
-                const subtotal = denom * qty;
-                totalActual += subtotal;
-                document.getElementById(`subtotal-${denom}`).innerText = subtotal.toLocaleString('vi-VN');
-            });
-            document.getElementById('actualTotal').innerText = totalActual.toLocaleString('vi-VN') + ' ₫';
-            
-            const systemTotal = Number(document.getElementById('systemAmount').value.replace(/\./g, '')) || 0;
-            const diff = totalActual - systemTotal;
-            const diffEl = document.getElementById('discrepancy');
-            
-            diffEl.innerText = diff.toLocaleString('vi-VN') + ' ₫';
-            if (diff > 0) {
-                diffEl.style.color = '#059669'; 
-            } else if (diff < 0) {
-                diffEl.style.color = '#dc2626'; 
-            } else {
-                diffEl.style.color = '#1e293b'; 
-            }
-        }
-
-        function submitData() {
-            const empId = document.getElementById('employeeId').value.trim();
-            if (!empId) {
-                alert('Vui lòng nhập User nhân viên!');
-                document.getElementById('employeeId').focus();
-                return;
-            }
-            alert("Đã ghi nhận bảng kê của user: " + empId);
         }
 
         window.onload = initTable;
