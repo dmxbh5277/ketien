@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bảng Kê Tiền - Mobile Dashboard</title>
+    <title>Bảng Kê Tiền - Compact Mobile Dashboard</title>
     <!-- Nhập font Google Sans từ Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Thư viện chụp màn hình -->
@@ -31,49 +31,50 @@
             font-family: 'Google Sans', sans-serif;
             background-color: var(--bg-color);
             margin: 0;
-            padding: 4px;
+            padding: 8px;
             color: var(--text-main);
         }
 
         .container {
             width: 100%;
-            max-width: 480px;
+            /* Tăng độ rộng lên 40%: 480px * 1.4 = 672px */
+            max-width: 672px;
             margin: 0 auto;
             background: var(--card-bg);
-            padding: 8px 10px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border-light);
         }
 
         h2 {
             text-align: center;
             color: #0f172a;
-            margin: 0 0 6px 0;
+            margin: 0 0 10px 0;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 17px;
             letter-spacing: -0.3px;
         }
 
         .dashboard-inputs {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 10px;
+            margin-bottom: 8px;
         }
 
         .input-card {
             background: var(--pastel-blue-bg);
-            padding: 5px 8px;
-            border-radius: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
             border: 1px solid var(--border-table);
             display: flex;
             flex-direction: column;
-            gap: 1px;
+            gap: 2px;
         }
 
         .input-card label {
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 500;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -83,9 +84,9 @@
         .input-card input {
             border: 1px solid #cbd5e1;
             background: #ffffff;
-            padding: 4px 6px;
-            border-radius: 4px;
-            font-size: 13px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 14px;
             font-family: 'Google Sans', sans-serif;
             color: var(--text-main);
             outline: none;
@@ -100,18 +101,18 @@
         .summary-box {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            gap: 10px;
             background: #f8fafc;
-            padding: 6px 8px;
-            border-radius: 6px;
-            margin-bottom: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
             border: 1px solid var(--border-table);
         }
 
         .summary-item {
             display: flex;
             flex-direction: column;
-            gap: 1px;
+            gap: 2px;
         }
 
         .summary-item.full {
@@ -119,7 +120,7 @@
         }
 
         .summary-item span.label {
-            font-size: 9px;
+            font-size: 10px;
             color: var(--text-secondary);
             font-weight: 500;
             text-transform: uppercase;
@@ -127,7 +128,7 @@
         }
 
         .summary-item span.value {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-main);
         }
@@ -135,13 +136,13 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 6px;
-            font-size: 12px;
+            margin-bottom: 10px;
+            font-size: 13px;
         }
 
         th, td {
             border-bottom: 1px solid var(--border-table);
-            padding: 3px 4px;
+            padding: 6px 8px;
             text-align: center;
         }
 
@@ -149,23 +150,23 @@
             background-color: #f8fafc;
             color: var(--text-secondary);
             font-weight: 500;
-            font-size: 10px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             border-top: 1px solid var(--border-table);
         }
 
-        th:first-child, td:first-child { text-align: left; padding-left: 4px; }
-        th:last-child, td:last-child { text-align: right; padding-right: 4px; }
+        th:first-child, td:first-child { text-align: left; padding-left: 8px; }
+        th:last-child, td:last-child { text-align: right; padding-right: 8px; }
 
         td input {
-            width: 48px;
-            padding: 3px 2px;
+            width: 65px;
+            padding: 5px 4px;
             text-align: center;
             border: 1px solid #cbd5e1;
-            border-radius: 4px;
+            border-radius: 6px;
             font-family: 'Google Sans', sans-serif;
-            font-size: 12px;
+            font-size: 13px;
             outline: none;
             background: #fff;
         }
@@ -192,14 +193,14 @@
         .button-group {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
+            gap: 8px;
         }
 
         button {
             font-family: 'Google Sans', sans-serif;
             border: none;
-            padding: 7px 4px;
-            font-size: 11px;
+            padding: 9px 6px;
+            font-size: 12px;
             border-radius: 6px;
             cursor: pointer;
             color: white;
@@ -230,7 +231,7 @@
         <div class="summary-box">
             <div class="summary-item">
                 <span class="label">Ngày & Giờ</span>
-                <span class="value" id="currentDateTime" style="font-size: 10px; font-weight: 500;">--/--/---- --:--:--</span>
+                <span class="value" id="currentDateTime" style="font-size: 11px; font-weight: 500;">--/--/---- --:--:--</span>
             </div>
             <div class="summary-item">
                 <span class="label">Thực tế</span>
@@ -282,14 +283,12 @@
         function captureScreen() {
             const originalContainer = document.getElementById('captureArea');
             
-            // Tạo bản sao (clone) để xử lý chụp ảnh chuẩn xác không bị lỗi hiển thị input
             const clone = originalContainer.cloneNode(true);
             clone.style.width = originalContainer.offsetWidth + 'px';
             clone.style.position = 'absolute';
             clone.style.left = '-9999px';
             document.body.appendChild(clone);
 
-            // Thay thế input trong bản clone bằng span để html2canvas căn chỉnh tuyệt đối không bị lệch chữ
             const inputsOriginal = originalContainer.querySelectorAll('input');
             const inputsClone = clone.querySelectorAll('input');
 
@@ -298,15 +297,15 @@
                 const span = document.createElement('span');
                 span.innerText = val;
                 span.style.display = 'inline-block';
-                span.style.padding = '3px 6px';
-                span.style.fontSize = '12px';
+                span.style.padding = '5px 8px';
+                span.style.fontSize = '13px';
                 span.style.fontFamily = 'Google Sans, sans-serif';
                 span.style.fontWeight = '500';
                 span.style.textAlign = inputsOriginal[index].id === 'employeeId' ? 'left' : 'center';
                 span.style.width = '100%';
                 span.style.boxSizing = 'border-box';
                 span.style.border = '1px solid #cbd5e1';
-                span.style.borderRadius = '4px';
+                span.style.borderRadius = '6px';
                 span.style.background = '#ffffff';
                 span.style.color = val === inputsOriginal[index].placeholder ? '#cbd5e1' : '#1e293b';
 
