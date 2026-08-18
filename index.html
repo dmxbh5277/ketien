@@ -74,8 +74,7 @@
 
         .input-card label {
             font-size: 10px;
-            font-weight: 500;
-            color: var(--text-secondary);
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
@@ -219,26 +218,26 @@
         <!-- Hàng 1: User Nhân viên & Ngày Giờ -->
         <div class="dashboard-inputs">
             <div class="input-card">
-                <label for="employeeId">User Nhân viên</label>
+                <label for="employeeId" style="color: var(--text-secondary);">User Nhân viên</label>
                 <input type="text" id="employeeId" placeholder="Nhập user...">
             </div>
-            <div class="input-card" style="justify-content: center;">
-                <label>Ngày & Giờ</label>
+            <div class="input-card" style="justify-content: center; background: #ffffff;">
+                <label style="color: var(--text-secondary);">Ngày & Giờ</label>
                 <span id="currentDateTime" style="font-size: 13px; font-weight: 700; color: var(--text-main); padding: 4px 0;">--/--/---- --:--:--</span>
             </div>
         </div>
 
-        <!-- Hàng 2: Tiền Hệ thống & Thực tế -->
-        <div class="summary-box">
-            <div class="input-card" style="background: #ffffff; border: 1px solid var(--border-table);">
-                <label for="systemAmount">Tiền Hệ thống</label>
+        <!-- Hàng 2: Tiền Hệ thống & Thực tế được đặt trong các ô card nổi bật -->
+        <div class="summary-box" style="background: transparent; padding: 0; border: none; gap: 10px; margin-bottom: 10px;">
+            <div class="input-card" style="background: #ffffff; border: 1.5px solid #cbd5e1;">
+                <label for="systemAmount" style="color: var(--primary);">Tiền Hệ thống</label>
                 <input type="text" id="systemAmount" placeholder="0" inputmode="numeric" oninput="formatCurrencyInput(this); calculateTotals();">
             </div>
-            <div class="summary-item" style="justify-content: center; padding-left: 4px;">
-                <span class="label">Thực tế</span>
-                <span class="value" id="actualTotal">0 ₫</span>
+            <div class="input-card" style="background: #ffffff; border: 1.5px solid #a7f3d0; justify-content: center;">
+                <label style="color: var(--success);">Thực tế</label>
+                <span class="value" id="actualTotal" style="font-size: 14px; font-weight: 700; color: var(--success); padding: 6px 0;">0 ₫</span>
             </div>
-            <div class="summary-item full">
+            <div class="summary-item full" style="background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-table);">
                 <span class="label">Chênh lệch (Thực tế - Hệ thống)</span>
                 <span class="value" id="discrepancy">0 ₫</span>
             </div>
