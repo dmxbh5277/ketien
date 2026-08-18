@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bảng Kê Tiền - Compact Mobile Dashboard</title>
+    <title>Bảng Kê Tiền - Mobile Dashboard</title>
     <!-- Nhập font Google Sans từ Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Thư viện chụp màn hình -->
@@ -280,12 +280,49 @@
         }
 
         function captureScreen() {
-            const element = document.getElementById('captureArea');
-            html2canvas(element, { scale: 2 }).then(canvas => {
+            const originalContainer = document.getElementById('captureArea');
+            
+            // Tạo bản sao (clone) để xử lý chụp ảnh chuẩn xác không bị lỗi hiển thị input
+            const clone = originalContainer.cloneNode(true);
+            clone.style.width = originalContainer.offsetWidth + 'px';
+            clone.style.position = 'absolute';
+            clone.style.left = '-9999px';
+            document.body.appendChild(clone);
+
+            // Thay thế input trong bản clone bằng span để html2canvas căn chỉnh tuyệt đối không bị lệch chữ
+            const inputsOriginal = originalContainer.querySelectorAll('input');
+            const inputsClone = clone.querySelectorAll('input');
+
+            inputsClone.forEach((inputClone, index) => {
+                const val = inputsOriginal[index].value || inputsOriginal[index].placeholder;
+                const span = document.createElement('span');
+                span.innerText = val;
+                span.style.display = 'inline-block';
+                span.style.padding = '3px 6px';
+                span.style.fontSize = '12px';
+                span.style.fontFamily = 'Google Sans, sans-serif';
+                span.style.fontWeight = '500';
+                span.style.textAlign = inputsOriginal[index].id === 'employeeId' ? 'left' : 'center';
+                span.style.width = '100%';
+                span.style.boxSizing = 'border-box';
+                span.style.border = '1px solid #cbd5e1';
+                span.style.borderRadius = '4px';
+                span.style.background = '#ffffff';
+                span.style.color = val === inputsOriginal[index].placeholder ? '#cbd5e1' : '#1e293b';
+
+                inputClone.parentNode.replaceChild(span, inputClone);
+            });
+
+            html2canvas(clone, { scale: 2, useCORS: true }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'bang_ke_tien_' + new Date().getTime() + '.png';
                 link.href = canvas.toDataURL("image/png");
                 link.click();
+                document.body.removeChild(clone);
+            }).catch(err => {
+                console.error(err);
+                document.body.removeChild(clone);
+                alert('Có lỗi xảy ra khi chụp ảnh!');
             });
         }
 
