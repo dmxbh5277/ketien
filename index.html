@@ -280,12 +280,12 @@
 </head>
 <body>
     <div class="container" id="captureArea">
-        <h2>BẢNG KÊ TIỀN THU NGÂN</h2>
+        <h2>BẢNG KÊ TIỀN THỰC TẾ</h2>
         
         <!-- Hàng 1: User Nhân viên & Ngày Giờ -->
         <div class="dashboard-inputs">
             <div class="input-card">
-                <label for="employeeId" style="color: var(--text-secondary);">Tên Nhân viên</label>
+                <label for="employeeId" style="color: var(--text-secondary);">User Nhân viên</label>
                 <input type="text" id="employeeId" placeholder="Nhập user...">
             </div>
             <div class="input-card" style="justify-content: center; background: #ffffff;">
@@ -297,15 +297,15 @@
         <!-- Hàng 2: Tiền Hệ thống & Thực tế -->
         <div class="summary-box">
             <div class="input-card" style="background: #ffffff; border: 1.5px solid #cbd5e1;">
-                <label for="systemAmount" style="color: var(--primary);">Tiền ERP</label>
+                <label for="systemAmount" style="color: var(--primary);">Tiền Hệ thống</label>
                 <input type="text" id="systemAmount" placeholder="0" inputmode="numeric" oninput="formatCurrencyInput(this); calculateTotals();">
             </div>
             <div class="input-card" style="background: #ffffff; border: 1.5px solid #a7f3d0; justify-content: center;">
-                <label style="color: var(--success);">TIỀN THỰC TẾ</label>
+                <label style="color: var(--success);">Thực tế</label>
                 <span class="value" id="actualTotal" style="font-size: 14px; font-weight: 700; color: var(--success); padding: 6px 0;">0 ₫</span>
             </div>
             <div class="summary-item full" style="background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-table); margin-top: 2px;">
-                <span class="label">Chênh lệch</span>
+                <span class="label">Chênh lệch (Thực tế - Hệ thống)</span>
                 <span class="value" id="discrepancy">0 ₫</span>
             </div>
         </div>
@@ -381,6 +381,24 @@
                 `;
                 tbody.appendChild(row);
             });
+
+            // Lắng nghe sự kiện phím Enter để chuyển xuống ô tiếp theo trong bảng
+            tbody.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const inputs = Array.from(tbody.querySelectorAll('input'));
+                    const currentIndex = inputs.indexOf(e.target);
+                    if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
+                        inputs[currentIndex + 1].focus();
+                        inputs[currentIndex + 1].select();
+                    } else if (currentIndex === inputs.length - 1) {
+                        // Nếu là ô cuối cùng, quay lại ô đầu tiên hoặc tập trung vào nút Lưu
+                        inputs[0].focus();
+                        inputs[0].select();
+                    }
+                }
+            });
+
             updateDateTime();
             setInterval(updateDateTime, 1000);
         }
