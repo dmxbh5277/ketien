@@ -108,6 +108,12 @@ button{display:inline-flex;align-items:center;justify-content:center;gap:8px;bor
     .btn-clear-all { font-size: 10px !important; }
 }
 @media(max-width:740px){.summary-box.amount-wide{grid-template-columns:minmax(0,1fr)}}
+/* Draft: nút xóa nhập liệu đang dở */
+.heading-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn-clear-input{min-height:36px;padding:6px 11px;font-size:11px;color:var(--danger);background:#fff5f4;border-color:#f0d9d7;border-radius:9px;gap:5px}
+.btn-clear-input .icon{width:14px;height:14px}
+@media(hover:hover){.btn-clear-input:hover{background:#ffe9e7}}
+@media(max-width:740px){.btn-clear-input{min-height:36px;padding:5px 9px;border-radius:8px}}
 
 </style>
 </head>
@@ -122,6 +128,7 @@ button{display:inline-flex;align-items:center;justify-content:center;gap:8px;bor
             <symbol id="i-summary" viewBox="0 0 24 24"><path d="M4 3h16v18H4zM8 7h8M8 11h3M8 15h8M8 18h8"/></symbol>
             <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></symbol>
             <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6"/></symbol>
+            <symbol id="i-eraser" viewBox="0 0 24 24"><path d="m7 21-4-4a2 2 0 0 1 0-3L13 4a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3l-9 9zM22 21H7M5 12l7 7"/></symbol>
         </defs></svg>
         <header class="app-header">
             <div class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-wallet"/></svg></div>
@@ -140,7 +147,7 @@ button{display:inline-flex;align-items:center;justify-content:center;gap:8px;bor
                 <div class="summary-item full"><span class="label">Chênh lệch</span><span class="value" id="discrepancy" aria-live="polite">0 ₫</span></div>
             </section>
             <section class="cash-panel panel" aria-labelledby="cashHeading">
-                <div class="section-heading"><div class="section-title"><span class="section-index" aria-hidden="true">02</span><h3 id="cashHeading">Chi tiết mệnh giá</h3></div><span class="unit-tag">VNĐ</span></div>
+                <div class="section-heading"><div class="section-title"><span class="section-index" aria-hidden="true">02</span><h3 id="cashHeading">Chi tiết mệnh giá</h3></div><div class="heading-actions"><button type="button" class="btn-clear-input" onclick="clearDraftInput()"><svg class="icon" aria-hidden="true"><use href="#i-eraser"/></svg><span>Xóa nhập liệu</span></button><span class="unit-tag">VNĐ</span></div></div>
                 <p class="section-hint">Nhập số tờ để tính thành tiền tự động.</p>
                 <table aria-label="Bảng kiểm đếm tiền theo mệnh giá"><thead><tr><th scope="col">Mệnh giá</th><th scope="col">Số lượng</th><th scope="col">Thành tiền</th></tr></thead><tbody id="denominationTable"></tbody></table>
                 <p class="table-footnote">Nhấn <kbd>Enter</kbd> để chuyển sang mệnh giá tiếp theo</p>
@@ -525,9 +532,69 @@ button{display:inline-flex;align-items:center;justify-content:center;gap:8px;bor
     new ResizeObserver(fitAmount).observe(amount);
     fitAmount();
 })();
+</script>
+<script data-draft="true">
+// TÍNH NĂNG BỔ SUNG: Tự lưu dữ liệu đang nhập dở (nháp) - khôi phục khi refresh / mở lại App.
+// Nháp chỉ bị xóa khi: nhấn "Xóa nhập liệu", lưu nhân viên thành công, hoặc "Xóa tất cả dữ liệu".
+(() => {
+    const DRAFT_KEY = 'cash_draft';
+    const empEl = () => document.getElementById('employeeId');
+    const amountEl = () => document.getElementById('systemAmount');
+    const qtyInputs = () => document.querySelectorAll('#denominationTable input');
+    let restoring = false;
 
+    const removeDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} };
 
+    const saveDraft = () => {
+        if (restoring) return;
+        try {
+            const qty = {};
+            qtyInputs().forEach(input => { qty[input.dataset.denom] = input.value; });
+            const draft = { employeeId: empEl().value, systemAmount: amountEl().value, qty: qty };
+            const isEmpty = !draft.employeeId && !draft.systemAmount && Object.values(qty).every(v => !v);
+            if (isEmpty) removeDraft();
+            else localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        } catch (e) {}
+    };
 
+    const restoreDraft = () => {
+        let draft = null;
+        try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) {}
+        if (!draft) return;
+        restoring = true;
+        try {
+            empEl().value = draft.employeeId || '';
+            amountEl().value = draft.systemAmount || '';
+            qtyInputs().forEach(input => { input.value = (draft.qty && draft.qty[input.dataset.denom]) || ''; });
+            amountEl().dispatchEvent(new Event('input', { bubbles: true })); // định dạng tiền + co chữ
+            calculateTotals();
+        } catch (e) {}
+        restoring = false;
+    };
+
+    // Tự lưu mỗi khi gõ
+    document.addEventListener('input', e => {
+        if (e.target.matches('#employeeId, #systemAmount, #denominationTable input')) saveDraft();
+    });
+    // Lưu thêm khi thoát / ẩn App (điện thoại)
+    window.addEventListener('pagehide', saveDraft);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveDraft(); });
+
+    // Khi form được xóa (sau khi lưu nhân viên / xóa tất cả) thì xóa nháp luôn
+    const originalClearForm = clearForm;
+    clearForm = function () { originalClearForm(); removeDraft(); };
+
+    // Nút "Xóa nhập liệu" - chỉ xóa phần đang nhập, không đụng dữ liệu đã lưu
+    window.clearDraftInput = function () {
+        if (confirm('Xóa toàn bộ dữ liệu đang nhập?\n(Không ảnh hưởng dữ liệu nhân viên đã lưu)')) {
+            clearForm();
+            empEl().focus();
+        }
+    };
+
+    // Khôi phục sau khi bảng mệnh giá đã được tạo
+    window.addEventListener('load', restoreDraft);
+})();
 </script>
 </body>
 </html>
